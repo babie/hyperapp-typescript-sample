@@ -1,2 +1,2 @@
 # hyperapp-typescript-sample
-Hyperapp Sample Project.
+Hyperapp Sample Project with TypeScript.
