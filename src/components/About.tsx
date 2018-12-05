@@ -9,7 +9,8 @@ export const About = (): any => (
 ) => (
   <div key="about">
     <Helmet key="about-helmet">
-      <title>About!</title>
+      <title>About</title>
+      <meta name="description" content="About Page" />
     </Helmet>
     <h1>About</h1>
     <div>

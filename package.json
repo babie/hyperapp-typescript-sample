@@ -5,24 +5,30 @@
     "build": "parcel build src/index.html --out-dir build --no-source-maps --experimental-scope-hoisting",
     "server": "http-server build",
     "clean": "rm -rf .cache dist build",
+    "ssr:start:script": "parcel watch src/index.ts --out-file index.js",
+    "ssr:start:watch": "parcel watch src/server.ts --out-file server.js --target node",
+    "ssr:start:server": "sleep 3 && node dist/server.js",
+    "ssr:start": "run-p ssr:start:script ssr:start:watch ssr:start:server",
     "lint": "lynt src"
   },
   "dependencies": {
     "@hyperapp/logger": "^0.5.0",
     "@hyperapp/render": "^2.1.0",
     "@hyperapp/router": "^0.7.1",
+    "express": "^4.16.4",
     "hyperapp": "^1.2.9",
-    "src": "^1.1.2",
     "traverse": "^0.6.6"
   },
   "devDependencies": {
+    "@types/express": "^4.16.0",
     "@types/parcel-env": "^0.0.0",
     "@types/traverse": "^0.6.32",
     "http-server": "^0.11.1",
     "jsdom": "^13.0.0",
     "jsdom-global": "^3.0.2",
     "lynt": "^0.5.4",
-    "parcel": "^1.10.3",
+    "npm-run-all": "^4.1.5",
+    "parcel-bundler": "^1.10.3",
     "prettier": "^1.15.2",
     "typescript": "^3.1.6"
   },
