@@ -6,7 +6,6 @@ import express from 'express'
 
 import { Modules as M } from './modules'
 import { Html } from './Html'
-import { ServerResponse } from 'http'
 
 const server = express()
 
@@ -20,6 +19,8 @@ server.get('/*', (req, res, next) => {
   next()
 })
 
-server.listen(3000, () => {
-  console.log(`Server is running.`)
-})
+server
+  .listen(3000, () => {
+    console.log(`Server is running.`)
+  })
+  .on('error', console.error)

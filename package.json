@@ -5,10 +5,10 @@
     "build": "parcel build src/index.html --out-dir build --no-source-maps --experimental-scope-hoisting",
     "server": "http-server build",
     "clean": "rm -rf .cache dist build",
-    "ssr:start:script": "parcel watch src/index.ts --out-file index.js",
-    "ssr:start:watch": "parcel watch src/server.ts --out-file server.js --target node",
-    "ssr:start:server": "sleep 3 && node dist/server.js",
-    "ssr:start": "run-p ssr:start:script ssr:start:watch ssr:start:server",
+    "ssr:start:script": "parcel build src/index.ts --out-dir dist --out-file index.js",
+    "ssr:start:watch": "parcel build src/server.ts --out-dir dist --out-file server.js --target node",
+    "ssr:start:server": "node dist/server.js",
+    "ssr:start": "run-s ssr:start:script ssr:start:watch ssr:start:server",
     "lint": "lynt src"
   },
   "dependencies": {

@@ -1,5 +1,4 @@
-import { h, VNode, Component } from 'hyperapp'
-import traverse from 'traverse'
+import { h, VNode, Component, app } from 'hyperapp'
 
 const HELMET_CONTAINER_CLASS_NAME = 'hyperapp-helmet-container'
 const HELMET_CHILD_CLASS_NAME = 'hyperapp-helmet-child'
@@ -88,6 +87,7 @@ interface IHelmetAttr {
   key: string
 }
 
+let hyperappHelmets: IHelmet[] = []
 export const Helmet: Component<IHelmetAttr, {}, {}> = (
   attributes: IHelmetAttr,
   children: any[]
@@ -98,6 +98,7 @@ export const Helmet: Component<IHelmetAttr, {}, {}> = (
     titleNode,
     otherNodes
   }
+  hyperappHelmets.push(helmet)
   const oncreate = () => {
     appendHelmet(helmet)
   }
@@ -120,25 +121,34 @@ export const Helmet: Component<IHelmetAttr, {}, {}> = (
   )
 }
 
-export let hyperappHelmetChildren: VNode[] = []
-
-export const getHelmetChildren = (view: any, state: any, actions: any): any => {
-  const tree = resolveNode(view, state, actions)
-  return traverse(tree).reduce((acc: any[], n: any) => {
-    if (
-      n &&
-      typeof n === 'object' &&
-      n.nodeName === 'div' &&
-      n.attributes['class'] === HELMET_CONTAINER_CLASS_NAME
-    ) {
-      return [...acc, ...n.children]
-    }
-    return acc
-  }, [])
-}
-
-const resolveNode = (node: any, state: any, actions: any): any => {
-  return typeof node === 'function'
-    ? node
-    : resolveNode(node(state, actions), state, actions)
+export const rewind = (view: any, state: any, actions: any): IHelmet => {
+  const div = document.createElement('div')
+  app(state, actions, view, div)
+  const helmet: IHelmet = hyperappHelmets.reduce(
+    (acc, cur) => {
+      const tmpTitleNode: VNode = {
+        nodeName: 'title',
+        children: acc.titleNode
+          ? [
+              [...acc.titleNode.children, ...cur.titleNode.children]
+                .filter(c => typeof c === 'string')
+                .join('')
+            ]
+          : cur.titleNode.children,
+        key: ''
+      }
+      const tmpOtherNodes: VNode[] = acc.otherNodes
+        ? [...acc.otherNodes, ...cur.otherNodes]
+        : cur.otherNodes
+      return {
+        key: '',
+        titleNode: tmpTitleNode,
+        otherNodes: tmpOtherNodes
+      }
+    },
+    {} as IHelmet
+  )
+  hyperappHelmets = []
+  console.dir(helmet)
+  return helmet
 }
