@@ -4,7 +4,7 @@ import traverse from 'traverse'
 const HELMET_CONTAINER_CLASS_NAME = 'hyperapp-helmet-container'
 const HELMET_CHILD_CLASS_NAME = 'hyperapp-helmet-child'
 
-function assortVNodes(nodes: VNode[]) {
+const assortNodes = (nodes: VNode[]) => {
   const titleNodes = nodes.filter(node => node.nodeName === 'title')
   const tagNames = ['meta', 'base', 'link', 'style', 'script']
   const otherNodes = nodes.filter(node => tagNames.includes(node.nodeName))
@@ -12,32 +12,32 @@ function assortVNodes(nodes: VNode[]) {
   return [titleNodes, otherNodes]
 }
 
-function appendHelmet(helmet: THelmet) {
-  const [titleNodes, otherNodes] = assortVNodes(helmet.children)
+const appendHelmet = (helmet: THelmet) => {
+  const [titleNodes, otherNodes] = assortNodes(helmet.children)
 
   updateTitle(titleNodes)
   appendTags(otherNodes)
 }
 
-function appendTags(nodes: VNode[]) {
+const appendTags = (nodes: VNode[]) => {
   const headElement = document.getElementsByTagName('head')[0]
   nodes
-    .map((child: VNode) => VNodeToDOM(child))
+    .map((child: VNode) => NodeToDOM(child))
     .forEach((t: Element) => headElement.appendChild(t))
 }
 
-function updateHelmet(helmet: THelmet) {
-  const [titleNodes, otherNodes] = assortVNodes(helmet.children)
+const updateHelmet = (helmet: THelmet) => {
+  const [titleNodes, otherNodes] = assortNodes(helmet.children)
   updateTitle(titleNodes)
   removeTags(`.${HELMET_CHILD_CLASS_NAME}.${helmet.key}`)
   appendTags(otherNodes)
 }
 
-function removeHelmet(helmet: THelmet) {
+const removeHelmet = (helmet: THelmet) => {
   removeTags(`.${HELMET_CHILD_CLASS_NAME}.${helmet.key}`)
 }
 
-function removeTags(selector: string) {
+const removeTags = (selector: string) => {
   const headElement = document.getElementsByTagName('head')[0]
   const oldTags: Element[] = Array.prototype.slice.call(
     headElement.querySelectorAll(selector)
@@ -47,7 +47,7 @@ function removeTags(selector: string) {
   })
 }
 
-function updateTitle(titleNodes: VNode[]) {
+const updateTitle = (titleNodes: VNode[]) => {
   const title = titleNodes
     .map(titleNode =>
       titleNode.children
@@ -61,7 +61,7 @@ function updateTitle(titleNodes: VNode[]) {
   }
 }
 
-function VNodeToDOM({ nodeName, attributes, children }: VNode) {
+const NodeToDOM = ({ nodeName, attributes, children }: VNode) => {
   const element = document.createElement(nodeName)
   if (attributes !== undefined) {
     const attrs: Map<string, string> = new Map(Object.entries(attributes))
@@ -75,7 +75,7 @@ function VNodeToDOM({ nodeName, attributes, children }: VNode) {
   } else if (typeof children !== 'undefined') {
     children
       .filter<VNode>((child): child is VNode => !!child)
-      .map(child => VNodeToDOM(child))
+      .map(child => NodeToDOM(child))
   }
 
   return element
