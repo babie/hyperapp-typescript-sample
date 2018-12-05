@@ -4,70 +4,60 @@ import traverse from 'traverse'
 const HELMET_CONTAINER_CLASS_NAME = 'hyperapp-helmet-container'
 const HELMET_CHILD_CLASS_NAME = 'hyperapp-helmet-child'
 
-class HeadManager {
-  assortVNodes(nodes: VNode[]) {
-    const titleNodes = nodes.filter(node => node.nodeName === 'title')
-    const tagNames = ['meta', 'base', 'link', 'style', 'script']
-    const otherNodes = nodes.filter(node => tagNames.includes(node.nodeName))
+function assortVNodes(nodes: VNode[]) {
+  const titleNodes = nodes.filter(node => node.nodeName === 'title')
+  const tagNames = ['meta', 'base', 'link', 'style', 'script']
+  const otherNodes = nodes.filter(node => tagNames.includes(node.nodeName))
 
-    return [titleNodes, otherNodes]
-  }
+  return [titleNodes, otherNodes]
+}
 
-  appendHelmet(helmet: THelmet) {
-    const [titleNodes, otherNodes] = this.assortVNodes(helmet.children)
+function appendHelmet(helmet: THelmet) {
+  const [titleNodes, otherNodes] = assortVNodes(helmet.children)
 
-    this.updateTitle(titleNodes)
-    this.appendTags(otherNodes)
-  }
+  updateTitle(titleNodes)
+  appendTags(otherNodes)
+}
 
-  appendTags(nodes: VNode[]) {
-    const headElement = document.getElementsByTagName('head')[0]
-    nodes
-      .map((child: VNode) => VNodeToDOM(child))
-      .forEach((t: Element) => headElement.appendChild(t))
-  }
+function appendTags(nodes: VNode[]) {
+  const headElement = document.getElementsByTagName('head')[0]
+  nodes
+    .map((child: VNode) => VNodeToDOM(child))
+    .forEach((t: Element) => headElement.appendChild(t))
+}
 
-  updateHelmet(helmet: THelmet) {
-    const [titleNodes, otherNodes] = this.assortVNodes(helmet.children)
-    this.updateTitle(titleNodes)
-    this.removeTags(`.${HELMET_CHILD_CLASS_NAME}.${helmet.key}`)
-    this.appendTags(otherNodes)
-  }
+function updateHelmet(helmet: THelmet) {
+  const [titleNodes, otherNodes] = assortVNodes(helmet.children)
+  updateTitle(titleNodes)
+  removeTags(`.${HELMET_CHILD_CLASS_NAME}.${helmet.key}`)
+  appendTags(otherNodes)
+}
 
-  removeHelmet(helmet: THelmet) {
-    //this.wrapAnimationFrame(() => {
-    console.info('removeHelmet():')
-    console.dir(helmet)
-    this.removeTags(`.${HELMET_CHILD_CLASS_NAME}.${helmet.key}`)
-    //})
-  }
+function removeHelmet(helmet: THelmet) {
+  removeTags(`.${HELMET_CHILD_CLASS_NAME}.${helmet.key}`)
+}
 
-  removeTags(selector: string) {
-    const headElement = document.getElementsByTagName('head')[0]
-    const oldTags: Element[] = Array.prototype.slice.call(
-      headElement.querySelectorAll(selector)
+function removeTags(selector: string) {
+  const headElement = document.getElementsByTagName('head')[0]
+  const oldTags: Element[] = Array.prototype.slice.call(
+    headElement.querySelectorAll(selector)
+  )
+  oldTags.forEach((t: Element) => {
+    headElement.removeChild(t)
+  })
+}
+
+function updateTitle(titleNodes: VNode[]) {
+  const title = titleNodes
+    .map(titleNode =>
+      titleNode.children
+        .filter<string>((child): child is string => !!child)
+        .map((child: string) => child)
+        .join('')
     )
-    console.info('selector:')
-    console.dir(selector)
-    console.info('oldTags:')
-    console.dir(oldTags)
-    oldTags.forEach((t: Element) => {
-      headElement.removeChild(t)
-    })
-  }
-
-  updateTitle(titleNodes: VNode[]) {
-    const title = titleNodes
-      .map(titleNode =>
-        titleNode.children
-          .filter<string>((child): child is string => !!child)
-          .map((child: string) => child)
-          .join('')
-      )
-      .join('')
-    if (title !== '' && title !== document.title) {
-      document.title = title
-    }
+    .join('')
+  if (title !== '' && title !== document.title) {
+    document.title = title
   }
 }
 
@@ -91,7 +81,6 @@ function VNodeToDOM({ nodeName, attributes, children }: VNode) {
   return element
 }
 
-const headManager = new HeadManager()
 interface THelmet {
   key: string
   children: VNode[]
@@ -120,13 +109,13 @@ export const Helmet: Component<HelmetAttributes, {}, {}> = (
     children: tmpChildren
   }
   const oncreate = () => {
-    headManager.appendHelmet(helmet)
+    appendHelmet(helmet)
   }
   const onupdate = () => {
-    headManager.updateHelmet(helmet)
+    updateHelmet(helmet)
   }
   const onremove = (_e: Element, done: () => void) => {
-    headManager.removeHelmet(helmet)
+    removeHelmet(helmet)
     done()
   }
   return (
