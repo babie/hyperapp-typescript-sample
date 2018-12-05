@@ -4,66 +4,55 @@ import traverse from 'traverse'
 const HELMET_CONTAINER_CLASS_NAME = 'hyperapp-helmet-container'
 const HELMET_CHILD_CLASS_NAME = 'hyperapp-helmet-child'
 
-const assortNodes = (nodes: VNode[]) => {
-  const titleNodes = nodes.filter(node => node.nodeName === 'title')
-  const tagNames = ['meta', 'base', 'link', 'style', 'script']
-  const otherNodes = nodes.filter(node => tagNames.includes(node.nodeName))
-
-  return [titleNodes, otherNodes]
+const appendHelmet = (helmet: IHelmet) => {
+  updateTitle(helmet)
+  appendOthers(helmet)
 }
 
-const appendHelmet = (helmet: THelmet) => {
-  const [titleNodes, otherNodes] = assortNodes(helmet.children)
-
-  updateTitle(titleNodes)
-  appendTags(otherNodes)
+const updateHelmet = (helmet: IHelmet) => {
+  removeHelmet(helmet)
+  appendHelmet(helmet)
 }
 
-const appendTags = (nodes: VNode[]) => {
-  const headElement = document.getElementsByTagName('head')[0]
-  nodes
-    .map((child: VNode) => NodeToDOM(child))
-    .forEach((t: Element) => headElement.appendChild(t))
-}
+const removeHelmet = (helmet: IHelmet) => {
+  const selector = `.${HELMET_CHILD_CLASS_NAME}.${helmet.key}`
 
-const updateHelmet = (helmet: THelmet) => {
-  const [titleNodes, otherNodes] = assortNodes(helmet.children)
-  updateTitle(titleNodes)
-  removeTags(`.${HELMET_CHILD_CLASS_NAME}.${helmet.key}`)
-  appendTags(otherNodes)
-}
-
-const removeHelmet = (helmet: THelmet) => {
-  removeTags(`.${HELMET_CHILD_CLASS_NAME}.${helmet.key}`)
-}
-
-const removeTags = (selector: string) => {
   const headElement = document.getElementsByTagName('head')[0]
   const oldTags: Element[] = Array.prototype.slice.call(
     headElement.querySelectorAll(selector)
   )
+
   oldTags.forEach((t: Element) => {
     headElement.removeChild(t)
   })
 }
 
-const updateTitle = (titleNodes: VNode[]) => {
-  const title = titleNodes
-    .map(titleNode =>
-      titleNode.children
-        .filter<string>((child): child is string => !!child)
-        .map((child: string) => child)
-        .join('')
-    )
-    .join('')
-  if (title !== '' && title !== document.title) {
+const updateTitle = (helmet: IHelmet) => {
+  const title = helmet.titleNode.children.join('')
+  if (typeof title === 'string' && title !== document.title) {
     document.title = title
   }
 }
 
+const appendOthers = (helmet: IHelmet) => {
+  const headElement = document.getElementsByTagName('head')[0]
+  helmet.otherNodes
+    .map((child: VNode) => {
+      const tmp: VNode = {
+        ...child,
+        attributes: {
+          ...child.attributes,
+          class: [HELMET_CHILD_CLASS_NAME, helmet.key].join(' ')
+        }
+      }
+      return NodeToDOM(tmp)
+    })
+    .forEach((t: Element) => headElement.appendChild(t))
+}
+
 const NodeToDOM = ({ nodeName, attributes, children }: VNode) => {
   const element = document.createElement(nodeName)
-  if (attributes !== undefined) {
+  if (typeof attributes !== 'undefined') {
     const attrs: Map<string, string> = new Map(Object.entries(attributes))
     attrs.forEach((attrVal, attrKey) => {
       element.setAttribute(attrKey.toLowerCase(), attrVal)
@@ -81,32 +70,33 @@ const NodeToDOM = ({ nodeName, attributes, children }: VNode) => {
   return element
 }
 
-interface THelmet {
-  key: string
-  children: VNode[]
+const assortNodes = (nodes: VNode[]): [VNode, VNode[]] => {
+  const titleNode = nodes.filter(node => node.nodeName === 'title')[0]
+  const tagNames = ['meta', 'base', 'link', 'style', 'script']
+  const otherNodes = nodes.filter(node => tagNames.includes(node.nodeName))
+
+  return [titleNode, otherNodes]
 }
-interface HelmetAttributes {
+
+interface IHelmet {
+  key: string
+  titleNode: VNode
+  otherNodes: VNode[]
+}
+
+interface IHelmetAttr {
   key: string
 }
 
-export const Helmet: Component<HelmetAttributes, {}, {}> = (
-  attributes: HelmetAttributes,
+export const Helmet: Component<IHelmetAttr, {}, {}> = (
+  attributes: IHelmetAttr,
   children: any[]
 ) => {
-  const tmpChildren: VNode[] = children
-    .filter<VNode>((child): child is VNode => !!child)
-    .map((child: VNode) => {
-      if (child.nodeName !== 'title') {
-        child.attributes = {
-          ...child.attributes,
-          class: [HELMET_CHILD_CLASS_NAME, attributes['key']].join(' ')
-        }
-      }
-      return child
-    })
-  const helmet: THelmet = {
+  const [titleNode, otherNodes] = assortNodes(children)
+  const helmet: IHelmet = {
     key: attributes['key'],
-    children: tmpChildren
+    titleNode,
+    otherNodes
   }
   const oncreate = () => {
     appendHelmet(helmet)
@@ -130,8 +120,10 @@ export const Helmet: Component<HelmetAttributes, {}, {}> = (
   )
 }
 
-export const getHelmetChildren = (node: any, state: any, actions: any): any => {
-  const tree = resolveNode(node, state, actions)
+export let hyperappHelmetChildren: VNode[] = []
+
+export const getHelmetChildren = (view: any, state: any, actions: any): any => {
+  const tree = resolveNode(view, state, actions)
   return traverse(tree).reduce((acc: any[], n: any) => {
     if (
       n &&
@@ -146,9 +138,7 @@ export const getHelmetChildren = (node: any, state: any, actions: any): any => {
 }
 
 const resolveNode = (node: any, state: any, actions: any): any => {
-  if (typeof node === 'function') {
-    return resolveNode(node(state, actions), state, actions)
-  }
-
-  return node
+  return typeof node === 'function'
+    ? node
+    : resolveNode(node(state, actions), state, actions)
 }
