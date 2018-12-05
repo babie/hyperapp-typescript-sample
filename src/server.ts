@@ -4,7 +4,7 @@ require('jsdom-global')('', {
 import { renderToStream } from '@hyperapp/render'
 import express from 'express'
 
-import { Modules as M } from './modules'
+import { App as A } from './App'
 import { Html } from './Html'
 
 const server = express()
@@ -12,10 +12,10 @@ const server = express()
 server.use(express.static('dist'))
 
 server.get('/*', (req, res, next) => {
-  M.state.location.pathname = req.path
+  A.state.location.pathname = req.path
   res.statusCode = 200
   res.setHeader('Content-Type', 'text/html')
-  renderToStream(Html, M.state, M.actions).pipe(res)
+  renderToStream(Html, A.state, A.actions).pipe(res)
   next()
 })
 

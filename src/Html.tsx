@@ -1,14 +1,13 @@
 import { h, View } from 'hyperapp'
-import { Modules as M } from './modules'
-import { Root as R } from './Root'
+import { App as A } from './App'
 import { rewind } from './helmet'
 
 const Fragment = ''
-export const Html: View<M.AppState, M.AppActions> = (
-  state: M.AppState,
-  actions: M.AppActions
+export const Html: View<A.State, A.Actions> = (
+  state: A.State,
+  actions: A.Actions
 ) => {
-  const helmet = rewind(R.view, state, actions)
+  // const helmet = rewind(A.view, state, actions)
   return (
     <Fragment>
       <Fragment innerHTML="<!doctype html>" />
@@ -16,10 +15,10 @@ export const Html: View<M.AppState, M.AppActions> = (
         <head>
           <meta charset="utf-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <script src="/indexxxxx.js" defer />
+          <script src="/index.js" defer />
         </head>
         <body>
-          <div id="app">{R.view}</div>
+          <div id="app">{A.view}</div>
         </body>
       </html>
     </Fragment>

@@ -1,9 +1,9 @@
 import { h } from 'hyperapp'
 import { Link } from '@hyperapp/router'
-import { Modules as M } from '../modules'
+import { App as A } from '../App'
 import { Helmet } from '../helmet'
 
-export const Home = (): any => (state: M.AppState, actions: M.AppActions) => (
+export const Home = (): any => (state: A.State, actions: A.Actions) => (
   <div key="home">
     <Helmet key="home-helmet">
       <title>Home</title>
