@@ -126,7 +126,7 @@ export const Helmet: Component<IHelmetAttr, {}, {}> = (
   )
 }
 
-export const rewind = (view: any, state: any, actions: any): VNode => {
+export const getHelmetNodes = (view: any, state: any, actions: any): VNode => {
   const nodes = resolveNode(view, state, actions)
   return traverse(nodes).reduce((acc, node: VNode) => {
     if (node && node.nodeName === 'template') {
