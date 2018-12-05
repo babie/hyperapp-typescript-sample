@@ -1,4 +1,5 @@
 import { h, VNode, Component, app } from 'hyperapp'
+import traverse = require('traverse')
 
 const HELMET_CONTAINER_CLASS_NAME = 'hyperapp-helmet-container'
 const HELMET_CHILD_CLASS_NAME = 'hyperapp-helmet-child'
@@ -36,16 +37,7 @@ const updateTitle = (helmet: IHelmet) => {
 const appendOthers = (helmet: IHelmet) => {
   const headElement = document.getElementsByTagName('head')[0]
   helmet.otherNodes
-    .map((child: VNode) => {
-      const tmp: VNode = {
-        ...child,
-        attributes: {
-          ...child.attributes,
-          class: [HELMET_CHILD_CLASS_NAME, helmet.key].join(' ')
-        }
-      }
-      return NodeToDOM(tmp)
-    })
+    .map((child: VNode) => NodeToDOM(child))
     .forEach((t: Element) => headElement.appendChild(t))
 }
 
@@ -69,10 +61,20 @@ const NodeToDOM = ({ nodeName, attributes, children }: VNode) => {
   return element
 }
 
-const assortNodes = (nodes: VNode[]): [VNode, VNode[]] => {
+const setupNodes = (key: string, nodes: VNode[]): [VNode, VNode[]] => {
   const titleNode = nodes.filter(node => node.nodeName === 'title')[0]
   const tagNames = ['meta', 'base', 'link', 'style', 'script']
-  const otherNodes = nodes.filter(node => tagNames.includes(node.nodeName))
+  const otherNodes = nodes
+    .filter(node => tagNames.includes(node.nodeName))
+    .map((child: VNode) => {
+      return {
+        ...child,
+        attributes: {
+          ...child.attributes,
+          class: [HELMET_CHILD_CLASS_NAME, key].join(' ')
+        }
+      }
+    })
 
   return [titleNode, otherNodes]
 }
@@ -87,20 +89,19 @@ interface IHelmetAttr {
   key: string
 }
 
-let hyperappHelmets: IHelmet[] = []
 export const Helmet: Component<IHelmetAttr, {}, {}> = (
   attributes: IHelmetAttr,
   children: any[]
 ) => {
-  const [titleNode, otherNodes] = assortNodes(children)
+  const key = attributes.key
+  const [titleNode, otherNodes] = setupNodes(key, children)
   const helmet: IHelmet = {
-    key: attributes['key'],
+    key,
     titleNode,
     otherNodes
   }
-  hyperappHelmets.push(helmet)
   const oncreate = () => {
-    appendHelmet(helmet)
+    updateHelmet(helmet)
   }
   const onupdate = () => {
     updateHelmet(helmet)
@@ -110,45 +111,36 @@ export const Helmet: Component<IHelmetAttr, {}, {}> = (
     done()
   }
   return (
-    <div
-      key={attributes['key']}
+    <template
+      key={key}
+      id={key}
       class={HELMET_CONTAINER_CLASS_NAME}
       style={{ display: 'none' }}
       oncreate={oncreate}
       onupdate={onupdate}
       onremove={onremove}
-    />
+    >
+      {titleNode}
+      {otherNodes}
+    </template>
   )
 }
 
-export const rewind = (view: any, state: any, actions: any): IHelmet => {
-  const div = document.createElement('div')
-  app(state, actions, view, div)
-  const helmet: IHelmet = hyperappHelmets.reduce(
-    (acc, cur) => {
-      const tmpTitleNode: VNode = {
-        nodeName: 'title',
-        children: acc.titleNode
-          ? [
-              [...acc.titleNode.children, ...cur.titleNode.children]
-                .filter(c => typeof c === 'string')
-                .join('')
-            ]
-          : cur.titleNode.children,
-        key: ''
+export const rewind = (view: any, state: any, actions: any): VNode => {
+  const nodes = resolveNode(view, state, actions)
+  return traverse(nodes).reduce((acc, node: VNode) => {
+    if (node && node.nodeName === 'template') {
+      const attributes = node.attributes as any
+      if (attributes && attributes.class === HELMET_CONTAINER_CLASS_NAME) {
+        return [...acc, ...node.children]
       }
-      const tmpOtherNodes: VNode[] = acc.otherNodes
-        ? [...acc.otherNodes, ...cur.otherNodes]
-        : cur.otherNodes
-      return {
-        key: '',
-        titleNode: tmpTitleNode,
-        otherNodes: tmpOtherNodes
-      }
-    },
-    {} as IHelmet
-  )
-  hyperappHelmets = []
-  console.dir(helmet)
-  return helmet
+    }
+    return acc
+  }, [])
+}
+
+const resolveNode = (node: any, state: any, actions: any): VNode => {
+  return typeof node !== 'function'
+    ? node
+    : resolveNode(node(state, actions), state, actions)
 }
