@@ -1,7 +1,7 @@
 import { h } from 'hyperapp'
 import { Link } from '@hyperapp/router'
 import { App as A } from '../App'
-import { Helmet } from '../helmet'
+import { Helmet } from 'hyperapp-helmet'
 
 export const About = (): any => (state: A.State, actions: A.Actions) => (
   <div key="about">

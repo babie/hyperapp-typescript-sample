@@ -1,6 +1,6 @@
 import { h, View } from 'hyperapp'
 import { App as A } from './App'
-import { getHelmetNodes } from './helmet'
+import { getHelmetNodes } from 'hyperapp-helmet'
 
 const Fragment = ''
 export const Html: View<A.State, A.Actions> = (

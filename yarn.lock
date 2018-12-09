@@ -3298,6 +3298,13 @@ https-browserify@^1.0.0:
   resolved "https://registry.yarnpkg.com/https-browserify/-/https-browserify-1.0.0.tgz#ec06c10e0a34c0f2faf199f7fd7fc78fffd03c73"
   integrity sha1-7AbBDgo0wPL68Zn3/X/Hj//QPHM=
 
+hyperapp-helmet@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/hyperapp-helmet/-/hyperapp-helmet-0.1.0.tgz#4aafc73ef74b040b4267c4351d74d35d59ad9ba5"
+  integrity sha512-lVKoDEiJMuLCrA/ATxqgKd/wMGN4Cl8fTsUKyimPwknYrXK/0sH+0wK7FWHasQcdiLPc4Lzf8hZobCps2OBcfg==
+  dependencies:
+    traverse "^0.6.6"
+
 hyperapp@^1.2.0, hyperapp@^1.2.9:
   version "1.2.9"
   resolved "https://registry.yarnpkg.com/hyperapp/-/hyperapp-1.2.9.tgz#a17ec09634968a5fa5f6b7d649e7a03d9680fcf2"
