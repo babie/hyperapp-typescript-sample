@@ -1,17 +1,17 @@
 import { location, LocationState, LocationActions } from '@hyperapp/router'
 
 export namespace Locator {
-  export interface IState {
+  export interface State {
     location: LocationState
   }
-  export const state: IState = {
+  export const state: State = {
     location: location.state
   }
 
-  export interface IActions {
+  export interface Actions {
     location: LocationActions
   }
-  export const actions: IActions = {
+  export const actions: Actions = {
     location: location.actions
   }
 }

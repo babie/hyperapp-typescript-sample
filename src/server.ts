@@ -10,18 +10,17 @@ global.navigator = { userAgent: 'node.js' }
 import { renderToStream } from '@hyperapp/render'
 import express from 'express'
 
-import { App } from './App'
-import { Html } from './Html'
+import { Html } from './html'
 
 const server = express()
 
 server.use(express.static(__dirname + '/public'))
 
 server.get('/*', (req, res, next) => {
-  App.state.location.pathname = req.path
+  Html.state.location.pathname = req.path
   res.statusCode = 200
   res.setHeader('Content-Type', 'text/html')
-  renderToStream(Html, App.state, App.actions).pipe(res)
+  renderToStream(Html.view, Html.state, Html.actions).pipe(res)
   next()
 })
 
