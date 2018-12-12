@@ -1,4 +1,4 @@
-import { h, View } from 'hyperapp'
+import { h, View, VNode } from 'hyperapp'
 import { App } from './app'
 import { getHelmetNodes } from 'hyperapp-helmet'
 
@@ -6,7 +6,10 @@ const Fragment = ''
 export namespace Html {
   export const state = App.state
   export const actions = App.actions
-  export const view = (state: any, actions: any) => {
+  export const view: View<App.State, App.Actions> = (
+    state: App.State,
+    actions: App.Actions
+  ): VNode => {
     const helmetNodes = getHelmetNodes(App.view, state, actions)
     return (
       <Fragment>
