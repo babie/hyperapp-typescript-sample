@@ -18,7 +18,7 @@
     "@hyperapp/router": "^0.7.1",
     "express": "^4.16.4",
     "hyperapp": "^1.2.9",
-    "hyperapp-helmet": "^0.1.0",
+    "hyperapp-helmet": "^1.0.1",
     "jsdom": "^13.0.0",
     "traverse": "^0.6.6"
   },
@@ -38,10 +38,7 @@
   "lynt": {
     "typescript": true,
     "react": true,
-    "ignore": [
-      "tests/**/*.*",
-      "fixtures/**/*.*"
-    ],
+    "ignore": ["tests/**/*.*", "fixtures/**/*.*"],
     "rules": {
       "jsx-no-lambda": "off"
     }
