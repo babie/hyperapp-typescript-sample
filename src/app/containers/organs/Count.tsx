@@ -1,7 +1,10 @@
 import { h } from 'hyperapp'
-import { Counter as C } from '../../modules'
+import { Counter } from '../../modules'
 
-export const Counter = (): any => (state: C.State, actions: C.Actions) => (
+export const Count = (): any => (
+  state: Counter.State,
+  actions: Counter.Actions
+) => (
   <div>
     <h2>{state.count}</h2>
     <button onclick={() => actions.down(1)}>-</button>

@@ -1,7 +1,7 @@
 import { h } from 'hyperapp'
 import { Link } from '@hyperapp/router'
 import { Helmet } from 'hyperapp-helmet'
-import { Counter } from './organs'
+import { Count } from './organs'
 
 export const About = (): any => (_state: any, _actions: any) => (
   <div key="about">
@@ -10,7 +10,7 @@ export const About = (): any => (_state: any, _actions: any) => (
       <meta name="description" content="About Page" />
     </Helmet>
     <h1>About</h1>
-    <Counter />
+    <Count />
     <div>
       <Link to="/">Home</Link>
     </div>
