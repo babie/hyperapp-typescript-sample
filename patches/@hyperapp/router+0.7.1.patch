@@ -1,0 +1,12 @@
+patch-package
+--- a/node_modules/@hyperapp/router/index.d.ts
++++ b/node_modules/@hyperapp/router/index.d.ts
+@@ -28,7 +28,7 @@ interface RouteProps<P> {
+ 
+ export function Route<P>(
+   props: RouteProps<P>
+-): VNode<RenderProps<P>> | void;
++): VNode<RenderProps<P>> | null;
+ 
+ /**Switch */
+ export function Switch<P>(

@@ -10,7 +10,8 @@
     "ssr:build": "run-p ssr:build:index ssr:build:server",
     "ssr:start:server": "node build/server.js",
     "ssr:start": "run-s ssr:build ssr:start:server",
-    "lint": "lynt src"
+    "lint": "lynt src",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@hyperapp/logger": "^0.5.0",
@@ -31,6 +32,8 @@
     "lynt": "^0.5.4",
     "npm-run-all": "^4.1.5",
     "parcel-bundler": "^1.10.3",
+    "patch-package": "^5.1.1",
+    "postinstall-postinstall": "^2.0.0",
     "prettier": "^1.15.2",
     "typescript": "^3.1.6"
   },
@@ -38,7 +41,10 @@
   "lynt": {
     "typescript": true,
     "react": true,
-    "ignore": ["tests/**/*.*", "fixtures/**/*.*"],
+    "ignore": [
+      "tests/**/*.*",
+      "fixtures/**/*.*"
+    ],
     "rules": {
       "jsx-no-lambda": "off"
     }
